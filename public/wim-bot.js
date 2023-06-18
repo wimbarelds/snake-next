@@ -93,7 +93,11 @@ const init = function (data) {
     for (let i = 0; i < numCandyToPlace; i++) {
       const randNum = Math.floor(Math.random() * floorTiles.length);
       const pos = floorTiles[randNum];
-      if (snakeTiles.some((snake) => snake.some((snakeTile) => snakeTile.x === pos.x && snakeTile.y === pos.y)))
+      if (
+        snakeTiles.some((snake) =>
+          snake.some((snakeTile) => snakeTile.x === pos.x && snakeTile.y === pos.y),
+        )
+      )
         continue;
       if (candyTiles.some((candyTile) => candyTile.x === pos.x && candyTile.y === pos.y)) continue;
       placeCandy(pos);
@@ -110,7 +114,9 @@ function placeCandy(data) {
 }
 
 const candyCheck = (location) => {
-  return candyTiles.findIndex((candyTile) => location.x === candyTile.x && location.y === candyTile.y);
+  return candyTiles.findIndex(
+    (candyTile) => location.x === candyTile.x && location.y === candyTile.y,
+  );
 };
 
 const isWallCollisionAt = (pos) => {
@@ -124,7 +130,10 @@ const isWallCollisionAt = (pos) => {
   const searchStartTile = wallTiles[searchStart];
   if (searchStartTile.x === pos.x && searchStartTile.y === pos.y) return true;
   // Determine which direction we should be looking in
-  const direction = pos.x > searchStartTile.x || (pos.x === searchStartTile.x && pos.y > searchStartTile.y) ? 1 : -1;
+  const direction =
+    pos.x > searchStartTile.x || (pos.x === searchStartTile.x && pos.y > searchStartTile.y)
+      ? 1
+      : -1;
   for (let i = searchStart + direction; i < wallTiles.length && i >= 0; i += direction) {
     const tile = wallTiles[i];
     if (tile.x === pos.x && tile.y === pos.y) return true;
@@ -220,7 +229,9 @@ const searchCandy = (direction, maxLocationsSearched) => {
     // We cannot go immediately in the opposite direction of where we're going
     if (directionKey === opposite) continue;
     const DIRECTION = DIRECTIONS[directionKey];
-    search[directionKey] = trimCollisionLocations([{ x: snakeHead.x + DIRECTION.x, y: snakeHead.y + DIRECTION.y }]);
+    search[directionKey] = trimCollisionLocations([
+      { x: snakeHead.x + DIRECTION.x, y: snakeHead.y + DIRECTION.y },
+    ]);
     exploredInDirection[directionKey] = search[directionKey].length;
   }
 
@@ -252,7 +263,10 @@ const searchCandy = (direction, maxLocationsSearched) => {
     }
     // Find new places to search
     search = getExpandedSearchArea(search, forbidden);
-    const numSearchLocations = Object.values(search).reduce((count, locations) => count + locations.length, 0);
+    const numSearchLocations = Object.values(search).reduce(
+      (count, locations) => count + locations.length,
+      0,
+    );
     if (numSearchLocations === 0) {
       // There's nowhere to go, we've exhausted all search options
       return 0;
@@ -286,7 +300,8 @@ const compactMovement = (direction) => {
     if (direction === stuckDirection) {
       const forwards = DIRECTIONS[direction];
       //  If we can continue going forwards, do that
-      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y })) return direction;
+      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y }))
+        return direction;
 
       // We can't continue to go in the direction we want to, reverse
       stuckDirection = OPPOSITES[direction];
@@ -299,7 +314,8 @@ const compactMovement = (direction) => {
       if (!deathCheck({ x: snakeHead.x + desiredDirection.x, y: snakeHead.y + desiredDirection.y }))
         return stuckDirection;
       const forwards = DIRECTIONS[direction];
-      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y })) return direction;
+      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y }))
+        return direction;
       return OPPOSITES[stuckDirection];
     }
   } else {
@@ -307,7 +323,8 @@ const compactMovement = (direction) => {
     if (direction === stuckDirection) {
       const forwards = DIRECTIONS[direction];
       //  If we can continue going forwards, do that
-      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y })) return direction;
+      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y }))
+        return direction;
 
       // We can't continue to go in the direction we want to, reverse
       stuckDirection = OPPOSITES[direction];
@@ -320,7 +337,8 @@ const compactMovement = (direction) => {
       if (!deathCheck({ x: snakeHead.x + desiredDirection.x, y: snakeHead.y + desiredDirection.y }))
         return stuckDirection;
       const forwards = DIRECTIONS[direction];
-      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y })) return direction;
+      if (!deathCheck({ x: snakeHead.x + forwards.x, y: snakeHead.y + forwards.y }))
+        return direction;
       return OPPOSITES[stuckDirection];
     }
   }
@@ -369,7 +387,8 @@ function tick(data) {
   let frameTime = Date.now() - before;
   let maxTime = data.frameDelay;
 
-  if (frameTime > maxTime) console.warn({ frameTime, maxTime: data.frameDelay, locationsSearched, depth });
+  if (frameTime > maxTime)
+    console.warn({ frameTime, maxTime: data.frameDelay, locationsSearched, depth });
   // If nothing has been found for too long, add artificial candies to lead snake to other candyTiles
   if (lastCandyFound < Date.now() - 10000) {
     console.log('No candyTiles found for too long, placing artificial candyTiles');

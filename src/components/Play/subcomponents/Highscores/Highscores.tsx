@@ -24,7 +24,8 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
   const [playerName, setPlayername] = useState('');
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const playerScore = playerResult?.score ?? 0;
-  const playerHasHighscore = highscores && playerScore && highscores.some(highscore => highscore.score < playerScore);
+  const playerHasHighscore =
+    highscores && playerScore && highscores.some((highscore) => highscore.score < playerScore);
 
   const queryClient = useQueryClient();
   const mutateHighscores = useMutation({
@@ -39,11 +40,12 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
     },
   });
 
-  const canSubmitScore = !scoreSubmitted && playerHasHighscore && playerName && !mutateHighscores.isLoading;
+  const canSubmitScore =
+    !scoreSubmitted && playerHasHighscore && playerName && !mutateHighscores.isLoading;
 
   const submitScore = useCallback(
-    () => playerResult && mutateHighscores.mutate({playerName, playerResult, levelName}),
-    [playerName, playerResult, levelName]
+    () => playerResult && mutateHighscores.mutate({ playerName, playerResult, levelName }),
+    [playerName, playerResult, levelName],
   );
 
   return (
@@ -52,7 +54,9 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
       <div className="overlay__content modal">
         <div className="modal__title">
           <h2>Highscores</h2>
-          <button className="modal__close" onClick={onClose}>&times;</button>
+          <button className="modal__close" onClick={onClose}>
+            &times;
+          </button>
         </div>
         <div className="modal__body">
           {highscores ? (
@@ -61,7 +65,12 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
                 <li
                   className={styles.highscore}
                   key={index}
-                  onClick={() => onStartReplay({ playId: highscore.playId, inputHistory: highscore.inputHistory })}
+                  onClick={() =>
+                    onStartReplay({
+                      playId: highscore.playId,
+                      inputHistory: highscore.inputHistory,
+                    })
+                  }
                 >
                   <button className={styles.highscoreReplay} title="Watch replay" type="button">
                     <img src="/Replay_1.png" alt="" className={styles.rewind} />
@@ -83,7 +92,7 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
               </p>
               {playerHasHighscore && (
                 <div className={styles.submitHighscore}>
-                  <h3>That's a highscore!</h3>
+                  <h3>Thats a highscore!</h3>
                   {canSubmitScore && (
                     <div className={styles.submitHighscoreForm}>
                       <input

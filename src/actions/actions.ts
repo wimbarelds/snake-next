@@ -1,11 +1,11 @@
 'use server';
 
-import { GamePlayerResult } from "@/components/Play/Play";
-import { Level, Pos } from "@/game/SnakeGame";
-import { Highscore } from "@/game/SnakePlayer";
-import { SnakeScoreCalculator } from "@/game/SnakeScoreCalculator";
+import { GamePlayerResult } from '@/components/Play/Play';
+import { Level, Pos } from '@/game/SnakeGame';
+import { Highscore } from '@/game/SnakePlayer';
+import { SnakeScoreCalculator } from '@/game/SnakeScoreCalculator';
 import { createClient } from '@sanity/client';
-import { SanityDocument } from "sanity";
+import { SanityDocument } from 'sanity';
 import { z } from 'zod';
 
 const projectId = process.env.SANITY_PROJECT_ID;
@@ -29,8 +29,8 @@ const client = createClient({
   projectId,
   dataset,
   apiVersion: '2021-03-23',
-  useCdn: true
-})
+  useCdn: true,
+});
 
 interface PlaySession {
   playId: string;
@@ -41,20 +41,22 @@ interface PlaySession {
 const playSessions: PlaySession[] = [];
 
 export async function levelExists(levelName: string): Promise<boolean> {
-  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`)
+  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`);
   return !!count;
 }
 
-type SanityLevel = SanityDocument & Omit<Level, 'snakeTiles'> & {snakeTiles: Array<{tiles: Pos[]}>}
+type SanityLevel = SanityDocument &
+  Omit<Level, 'snakeTiles'> & { snakeTiles: Array<{ tiles: Pos[] }> };
 
 export async function getLevel(levelName: string): Promise<SanityDocument & Level> {
-  const sanityLevel = await client.fetch<SanityLevel>(`*[_type == "level" && levelName == $levelName][0]`, {levelName});
+  const sanityLevel = await client.fetch<SanityLevel>(
+    `*[_type == "level" && levelName == $levelName][0]`,
+    { levelName },
+  );
   return {
     ...sanityLevel,
-    snakeTiles: [
-      ...sanityLevel.snakeTiles.map(snake => snake.tiles)
-    ]
-  }
+    snakeTiles: [...sanityLevel.snakeTiles.map((snake) => snake.tiles)],
+  };
 }
 
 export async function getLevels(): Promise<string[]> {
@@ -71,7 +73,7 @@ export async function getHighscores(levelName: string, limit = 10): Promise<High
       _updatedAt
     } | order(score desc, _updatedAt asc)[0...$limit]
   `;
-  return await client.fetch(query, {levelName, limit});
+  return await client.fetch(query, { levelName, limit });
 }
 
 const playerResultDef = z.object({
@@ -84,13 +86,27 @@ const playerResultDef = z.object({
     LEFT: z.array(z.number()),
     RIGHT: z.array(z.number()),
   }),
-})
+});
 
-export async function submitHighscore({levelName, playerName, playerResult}: {levelName: string, playerName: string, playerResult: GamePlayerResult}): Promise<Highscore[]> {
+export async function submitHighscore({
+  levelName,
+  playerName,
+  playerResult,
+}: {
+  levelName: string;
+  playerName: string;
+  playerResult: GamePlayerResult;
+}): Promise<Highscore[]> {
   const exists = await levelExists(levelName);
   if (!exists) return Promise.reject('Level does not exist');
-  if (!playerResultDef.safeParse(playerResult).success) return Promise.reject('Invalid playerResult provided');
-  if (!playSessions.some(session => session.playId === playerResult.playId && session.sessionId === playerResult.sessionId)) {
+  if (!playerResultDef.safeParse(playerResult).success)
+    return Promise.reject('Invalid playerResult provided');
+  if (
+    !playSessions.some(
+      (session) =>
+        session.playId === playerResult.playId && session.sessionId === playerResult.sessionId,
+    )
+  ) {
     return Promise.reject('No match found for combination of playId and sessionId');
   }
 
@@ -98,17 +114,17 @@ export async function submitHighscore({levelName, playerName, playerResult}: {le
   const score = SnakeScoreCalculator(playerResult.playId, level, playerResult.inputHistory);
 
   if (score !== playerResult.score) {
-    return Promise.reject('Provided score did not pass validation-check')
+    return Promise.reject('Provided score did not pass validation-check');
   }
 
   const highscores = await getHighscores(levelName);
-  if (!highscores.some(({score}) => score < playerResult.score)) {
+  if (!highscores.some(({ score }) => score < playerResult.score)) {
     return Promise.reject('Score is not a highscore');
   }
 
   await client.create({
     _type: 'highscore',
-    level: {_type: 'reference', _ref: level._id},
+    level: { _type: 'reference', _ref: level._id },
     playerName,
     score,
     playId: playerResult.playId,
@@ -132,7 +148,17 @@ export async function getPlayId(sessionId: string): Promise<string> {
   return playId;
 }
 
-export async function saveMap({levelName, sessionId, wallTiles, snakeTiles}: {levelName: string, sessionId: string, wallTiles: Pos[], snakeTiles: Pos[][]}) {
+export async function saveMap({
+  levelName,
+  sessionId,
+  wallTiles,
+  snakeTiles,
+}: {
+  levelName: string;
+  sessionId: string;
+  wallTiles: Pos[];
+  snakeTiles: Pos[][];
+}) {
   if (Math.random() !== 5) throw 'Not yet implemented';
-  return {success: true};
+  return { success: true };
 }

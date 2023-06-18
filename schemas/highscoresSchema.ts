@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineField, defineType } from 'sanity';
 
 export const highscoreSchema = defineType({
   type: 'document',
@@ -9,7 +9,7 @@ export const highscoreSchema = defineType({
       type: 'reference',
       name: 'level',
       title: 'Level',
-      to: [{type: 'level'}],
+      to: [{ type: 'level' }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -36,11 +36,31 @@ export const highscoreSchema = defineType({
       title: 'Input History',
       validation: (Rule) => Rule.required(),
       fields: [
-        defineField({ name: 'UP', type: 'array', of: [{type: 'number'}], validation: (Rule) => Rule.required()}),
-        defineField({ name: 'DOWN', type: 'array', of: [{type: 'number'}], validation: (Rule) => Rule.required()}),
-        defineField({ name: 'LEFT', type: 'array', of: [{type: 'number'}], validation: (Rule) => Rule.required()}),
-        defineField({ name: 'RIGHT', type: 'array', of: [{type: 'number'}], validation: (Rule) => Rule.required()}),
+        defineField({
+          name: 'UP',
+          type: 'array',
+          of: [{ type: 'number' }],
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: 'DOWN',
+          type: 'array',
+          of: [{ type: 'number' }],
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: 'LEFT',
+          type: 'array',
+          of: [{ type: 'number' }],
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: 'RIGHT',
+          type: 'array',
+          of: [{ type: 'number' }],
+          validation: (Rule) => Rule.required(),
+        }),
       ],
     }),
-  ]
-})
+  ],
+});

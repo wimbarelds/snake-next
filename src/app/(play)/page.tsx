@@ -1,7 +1,5 @@
-import { Play } from '@/components/Play/Play'
+import { Play } from '@/components/Play/Play';
 
 export default function PlayPage() {
-  return (
-    <Play />
-  )
+  return <Play />;
 }

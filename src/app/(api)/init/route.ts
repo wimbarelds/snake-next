@@ -17,8 +17,8 @@ const client = createClient({
   dataset,
   apiVersion: '2021-03-23',
   useCdn: true,
-  token: process.env.SANITY_EDITOR_TOKEN
-})
+  token: process.env.SANITY_EDITOR_TOKEN,
+});
 
 export async function GET(request: Request) {
   const state = await client.fetch(`*[_type == "setup"][0].status`);
@@ -27,30 +27,34 @@ export async function GET(request: Request) {
       _id: 'setup',
       _type: 'setup',
       status: 'initialized',
-    })
+    });
 
     const root = resolve('.', 'public', 'levels');
     const levels = readdirSync(root);
     for (const level of levels) {
       const path = resolve(root, level);
-      const {sessionId, ...map} = JSON.parse(readFileSync(resolve(path, 'map.json'), {encoding: 'utf-8'})) as Level & {sessionId: null};
+      const { sessionId, ...map } = JSON.parse(
+        readFileSync(resolve(path, 'map.json'), { encoding: 'utf-8' }),
+      ) as Level & { sessionId: null };
       const levelId = `level_${level}`;
       await client.createOrReplace({
         _type: 'level',
         _id: levelId,
         ...map,
         wallTiles: addSanityKeys(map.wallTiles),
-        snakeTiles: addSanityKeys(map.snakeTiles).map(snake => ({
+        snakeTiles: addSanityKeys(map.snakeTiles).map((snake) => ({
           _key: nanoid(16),
           _type: 'object',
-          tiles: snake.map(tile => ({
+          tiles: snake.map((tile) => ({
             ...tile,
             _key: nanoid(16),
-          }))
-        }))
+          })),
+        })),
       });
       if (!existsSync(resolve(path, 'highscores.json'))) continue;
-      const highscores = JSON.parse(readFileSync(resolve(path, 'highscores.json'), {encoding: 'utf-8'})) as Highscore[];
+      const highscores = JSON.parse(
+        readFileSync(resolve(path, 'highscores.json'), { encoding: 'utf-8' }),
+      ) as Highscore[];
       for (const highscore of highscores) {
         await client.create({
           _type: 'highscore',
@@ -59,7 +63,7 @@ export async function GET(request: Request) {
             _ref: levelId,
           },
           ...highscore,
-        })
+        });
       }
     }
   }

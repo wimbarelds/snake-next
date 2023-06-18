@@ -6,8 +6,8 @@ interface Props {
   onSetLevelName: (name: string) => void;
 }
 
-export function LevelPicker({onSetLevelName}: Props) {
-  const {data: levels} = useQuery({
+export function LevelPicker({ onSetLevelName }: Props) {
+  const { data: levels } = useQuery({
     queryKey: ['levels'],
     queryFn: getLevels,
   });
@@ -17,7 +17,7 @@ export function LevelPicker({onSetLevelName}: Props) {
       <div className={styles.menu}>
         <h2>Pick a level</h2>
         <div className={styles.menuItems}>
-          {levels?.map(level => (
+          {levels?.map((level) => (
             <button type="button" key={level} onClick={() => onSetLevelName(level)}>
               {level}
             </button>
@@ -25,5 +25,5 @@ export function LevelPicker({onSetLevelName}: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

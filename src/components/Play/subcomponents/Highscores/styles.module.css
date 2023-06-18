@@ -11,7 +11,7 @@
 .playerresult {
   margin: 0 -10px;
   padding: 10px;
-  background-color: rgba(0, 0, 0, .05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .playerresult h3 {
@@ -26,7 +26,8 @@
   display: flex;
 }
 
-.submitHighscore input, .submitHighscore button {
+.submitHighscore input,
+.submitHighscore button {
   font-family: 'Arcade Normal';
   height: 36px;
   padding: 5px 10px;
@@ -71,14 +72,13 @@
   line-height: 20px;
   text-align: left;
   color: var(--color-secondary);
-  transition: color .4s ease-in-out;
+  transition: color 0.4s ease-in-out;
   cursor: pointer;
 }
 
 .highscore:hover {
   color: var(--color-accent);
 }
-
 
 .highscore:hover .rewind {
   animation: spin 1s ease-in-out infinite;

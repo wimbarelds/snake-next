@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "prettier": "prettier . -c",
+    "prettier:fix": "prettier . -w"
   },
   "dependencies": {
     "@sanity/eslint-config-studio": "2.0.1",
@@ -26,6 +30,8 @@
     "seed-random": "2.2.0",
     "styled-components": "5.3.11",
     "typescript": "5.1.3",
-    "zod": "3.21.4"
+    "zod": "3.21.4",
+    "prettier": "2.8.8",
+    "prettier-package-json": "2.8.0"
   }
 }

@@ -1,7 +1,7 @@
-import { Level } from "@/game/SnakeGame";
-import { GameState } from "../Play/Play";
-import { useMemo } from "react";
+import { Level } from '@/game/SnakeGame';
+import { useMemo } from 'react';
 import styles from './styles.module.css';
+import { GameState } from '../../Play';
 
 export type Player = string | null;
 
@@ -14,12 +14,21 @@ interface Props {
   onSetNumPlayers: (num: number) => void;
 }
 
-export function Menu({levelName, level, numPlayers, onSetLevelName, onSetGameState, onSetNumPlayers}: Props) {
+export function Menu({
+  levelName,
+  level,
+  numPlayers,
+  onSetLevelName,
+  onSetGameState,
+  onSetNumPlayers,
+}: Props) {
   const levelLoaded = !!level;
   const levelNameLoading = levelLoaded ? levelName : 'Loading';
   const maxNumPlayers = level ? level.snakeTiles.length : 0;
   const players = useMemo(() => {
-    return Array(3).fill('').map((v, i) => i + 1);
+    return Array(3)
+      .fill('')
+      .map((v, i) => i + 1);
   }, []);
 
   return (
@@ -38,21 +47,47 @@ export function Menu({levelName, level, numPlayers, onSetLevelName, onSetGameSta
                   disabled={index >= maxNumPlayers}
                   onClick={() => onSetNumPlayers(player)}
                 >
-                  <span className="label">{ player }</span>
+                  <span className="label">{player}</span>
                 </button>
               ))}
             </div>
           </div>
-          <button type="button" className={styles.button} onClick={() => onSetGameState('play')} disabled={!levelLoaded}>
+          <button
+            type="button"
+            className={styles.button}
+            onClick={() => onSetGameState('play')}
+            disabled={!levelLoaded}
+          >
             Start game
             <span className={styles.smallText}>{levelNameLoading}</span>
           </button>
           {/* <button type="button" className={styles.button} onClick={() => onSetGameState('manage-controls')} disabled={!levelLoaded}>Keybindings</button> */}
-          <button type="button" className={styles.button} onClick={() => onSetGameState('manage-bots')} disabled={!levelLoaded}>Manage bots</button>
-          <button type="button" className={styles.button} onClick={() => onSetGameState('choose-level')} disabled={!levelLoaded}>Choose level</button>
-          <button type="button" className={styles.button} onClick={() => onSetGameState('highscores')} disabled={!levelLoaded}>Show highscores</button>
+          <button
+            type="button"
+            className={styles.button}
+            onClick={() => onSetGameState('manage-bots')}
+            disabled={!levelLoaded}
+          >
+            Manage bots
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            onClick={() => onSetGameState('choose-level')}
+            disabled={!levelLoaded}
+          >
+            Choose level
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            onClick={() => onSetGameState('highscores')}
+            disabled={!levelLoaded}
+          >
+            Show highscores
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

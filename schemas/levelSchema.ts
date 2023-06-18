@@ -1,4 +1,4 @@
-import { defineArrayMember, defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from 'sanity';
 
 export const tileSchema = defineType({
   type: 'object',
@@ -14,8 +14,8 @@ export const tileSchema = defineType({
       type: 'number',
       title: 'Y',
     }),
-  ]
-})
+  ],
+});
 
 export const levelSchema = defineType({
   type: 'document',
@@ -41,10 +41,10 @@ export const levelSchema = defineType({
             defineField({
               type: 'array',
               name: 'tiles',
-              of: [defineArrayMember({type: 'tile'})],
-            })
-          ]
-        })
+              of: [defineArrayMember({ type: 'tile' })],
+            }),
+          ],
+        }),
       ],
     }),
     defineField({
@@ -53,12 +53,12 @@ export const levelSchema = defineType({
       title: 'WallTiles',
       hidden: true,
       // TODO: components
-      of: [defineArrayMember({type: 'tile'})],
+      of: [defineArrayMember({ type: 'tile' })],
     }),
   ],
   preview: {
     select: {
-      'title': 'levelName'
-    }
-  }
-})
+      title: 'levelName',
+    },
+  },
+});

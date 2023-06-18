@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineField, defineType } from 'sanity';
 
 export const setupSchema = defineType({
   type: 'document',
@@ -9,6 +9,6 @@ export const setupSchema = defineType({
       type: 'string',
       name: 'status',
       title: 'Status',
-    })
-  ]
-})
+    }),
+  ],
+});
