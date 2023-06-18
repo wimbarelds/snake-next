@@ -11,6 +11,7 @@ if (process.env.IS_CYCLIC) {
     path.resolve(__dirname, '.next', 'static'),
     path.resolve(__dirname, 'dist', '.next', 'static'),
   );
+  fs.renameSync(path.resolve(__dirname, 'public'), path.resolve(__dirname, 'dist', 'public'));
   console.log('Move finished');
 
   const packagePath = path.resolve(__dirname, 'dist', 'package.json');
