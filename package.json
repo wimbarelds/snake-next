@@ -10,7 +10,8 @@
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
     "prettier": "prettier . -c",
-    "prettier:fix": "prettier . -w"
+    "prettier:fix": "prettier . -w",
+    "postbuild": "node delete-modules.js"
   },
   "dependencies": {
     "@sanity/eslint-config-studio": "2.0.1",
