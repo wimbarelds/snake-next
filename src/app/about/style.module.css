@@ -1,0 +1,11 @@
+.about {
+  margin: 60px 30px;
+  max-width: 60em;
+  line-height: 1.5;
+}
+
+.about img {
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
+}

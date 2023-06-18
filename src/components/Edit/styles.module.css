@@ -1,0 +1,130 @@
+.canvas {
+  cursor: crosshair;
+}
+
+.menu {
+  position: fixed;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  top: 0;
+  right: 10px;
+}
+
+.metaInfo {
+  padding: 10px;
+  display: flex;
+}
+
+.metaInfo input {
+  background: transparent;
+  border: solid var(--color-primary) 5px;
+  font-family: 'Arcade Rounded';
+  color: var(--color-primary);
+  padding: 5px;
+  height: 35px;
+}
+
+.metaInfo button {
+  background: var(--color-primary);
+  border: 0;
+  font-family: 'Arcade Normal';
+  color: var(--color-secondary);
+  padding: 10px;
+  cursor: pointer;
+  height: 35px;
+}
+
+.tools {
+  border: solid var(--color-primary) 5px;
+  border-top: 0;
+  padding: 10px;
+}
+
+.tools button {
+  border: 0;
+  border-bottom: 0;
+  padding: 0 10px;
+  background-color: transparent;
+  color: var(--color-primary);
+  font-family: 'Arcade Normal';
+  outline: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tools button:hover {
+  text-decoration: underline;
+}
+
+.tools button.active {
+  color: var(--color-accent);
+}
+
+.tools button:disabled {
+  opacity: .5;
+}
+
+.snakePicker {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  border: solid var(--color-primary) 5px;
+  padding: 10px;
+}
+
+.snakePicker button {
+  border: 0;
+  border-bottom: 0;
+  padding: 0 5px;
+  background-color: transparent;
+  color: var(--color-primary);
+  font-family: 'Arcade Normal';
+  outline: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.snakePicker button:hover {
+  text-decoration: underline;
+}
+
+.snakePicker button.active {
+  color: var(--color-accent);
+}
+
+@media (max-width: 800px) and (orientation: portrait) {
+  .menu {
+    max-width: calc(100vw - 10px);
+    left: 10px;
+    right: 0;
+  }
+
+  .tools {
+    width: 110px;
+    border-right: 0;
+  }
+
+  .tools button+button {
+    margin-top: 10px;
+  }
+
+
+  .metaInfo {
+    margin-top: 60px;
+    margin-right: 10px;
+    display: flex;
+    width: calc(100vw - 120px);
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .metaInfo input {
+    width: calc(100% - 75px);
+  }
+
+
+  .snakePicker {
+    display: none;
+  }
+}

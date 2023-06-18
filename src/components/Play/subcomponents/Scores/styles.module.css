@@ -1,0 +1,13 @@
+.score {
+  position: fixed;
+  top: 0;
+  right: 10px;
+  padding: 10px;
+  border: solid var(--color-primary) 5px;
+  border-top: 0;
+  z-index: 5;
+}
+
+.scoreValue {
+  color: var(--color-accent);
+}

@@ -1,0 +1,104 @@
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+.playerresult {
+  margin: 0 -10px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, .05);
+}
+
+.playerresult h3 {
+  text-align: center;
+  font-size: 20px;
+  padding: 0;
+  margin: 10px 0;
+  white-space: nowrap;
+}
+
+.submitHighscoreForm {
+  display: flex;
+}
+
+.submitHighscore input, .submitHighscore button {
+  font-family: 'Arcade Normal';
+  height: 36px;
+  padding: 5px 10px;
+}
+
+.submitHighscore input {
+  flex: 1;
+  background-color: var(--color-primary);
+  border: solid var(--color-secondary) 1px;
+}
+
+.submitHighscore button {
+  border: 0;
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.playerscore {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.value {
+  color: var(--color-accent);
+}
+
+.highscores {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 5px 0;
+  font-size: 13px;
+}
+
+.highscore {
+  display: flex;
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+  line-height: 20px;
+  text-align: left;
+  color: var(--color-secondary);
+  transition: color .4s ease-in-out;
+  cursor: pointer;
+}
+
+.highscore:hover {
+  color: var(--color-accent);
+}
+
+
+.highscore:hover .rewind {
+  animation: spin 1s ease-in-out infinite;
+}
+
+.highscoreName {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.highscoreReplay {
+  display: block;
+  border: 0;
+  background-color: transparent;
+  position: relative;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.highscoreReplay .rewind {
+  position: absolute;
+}

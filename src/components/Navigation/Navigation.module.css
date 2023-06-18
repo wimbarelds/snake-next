@@ -1,0 +1,26 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 10px;
+  color: var(--color-primary);
+  background-color: var(--color-secondary);
+  border: solid var(--color-primary) 5px;
+  border-top: 0;
+  padding: 10px;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+}
+
+.navlink {
+  color: var(--color-primary);
+  text-decoration: underline;
+
+  /* &.router-link-exact-active {
+      color: var(--color-accent);
+  } */
+}
+
+.navlink:hover {
+  text-decoration: none;
+}
