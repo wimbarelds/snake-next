@@ -11,7 +11,17 @@ if (process.env.IS_CYCLIC) {
     path.resolve(__dirname, '.next', 'static'),
     path.resolve(__dirname, 'dist', '.next', 'static'),
   );
-  fs.renameSync(path.resolve(__dirname, 'public'), path.resolve(__dirname, 'dist', 'public'));
+  const srcPublic = path.resolve(__dirname, 'public');
+  const distPublic = path.resolve(__dirname, 'dist', 'public');
+  if (!fs.existsSync(targetPublic)) {
+    fs.mkdirSync(targetPublic);
+  }
+  const files = fs
+    .readdirSync(srcPublic)
+    .filter((name) => fs.statSync(resolve(srcPublic, name)).isFile());
+  for (const file of files) {
+    fs.copyFileSync(path.resolve(srcPublic, file), path.resolve(distPublic, file));
+  }
   console.log('Move finished');
 
   const packagePath = path.resolve(__dirname, 'dist', 'package.json');
