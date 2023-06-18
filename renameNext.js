@@ -13,8 +13,8 @@ if (process.env.IS_CYCLIC) {
   );
   const srcPublic = path.resolve(__dirname, 'public');
   const distPublic = path.resolve(__dirname, 'dist', 'public');
-  if (!fs.existsSync(targetPublic)) {
-    fs.mkdirSync(targetPublic);
+  if (!fs.existsSync(distPublic)) {
+    fs.mkdirSync(distPublic);
   }
   const files = fs
     .readdirSync(srcPublic)
