@@ -18,7 +18,7 @@ if (process.env.IS_CYCLIC) {
   }
   const files = fs
     .readdirSync(srcPublic)
-    .filter((name) => fs.statSync(resolve(srcPublic, name)).isFile());
+    .filter((name) => fs.statSync(path.resolve(srcPublic, name)).isFile());
   for (const file of files) {
     fs.copyFileSync(path.resolve(srcPublic, file), path.resolve(distPublic, file));
   }
