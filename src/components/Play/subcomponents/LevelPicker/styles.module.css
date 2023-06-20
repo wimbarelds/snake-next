@@ -16,10 +16,17 @@
 }
 
 .menuItems {
+  display: flex;
+  flex-direction: column;
   max-width: 80vw;
   max-height: calc(80vh - 100px);
   overflow-y: auto;
-  padding: 0 10px 0 0;
+  padding: 0 10px 10px 0;
+  gap: 1em;
+}
+
+.menuItems li {
+  list-style: none;
 }
 
 .menuItems::-webkit-scrollbar {
@@ -34,7 +41,7 @@
   background: var(--color-accent);
 }
 
-.menuItems button {
+.menuItems a, .currentLevel {
   display: block;
   color: var(--color-primary);
   background-color: rgba(0, 0, 0, 0.5);
@@ -42,19 +49,20 @@
   padding: 10px;
   text-align: left;
   border: 0;
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   border: solid var(--color-accent) 1px;
   cursor: pointer;
   box-shadow: 0px 0px var(--color-accent);
   transition: box-shadow 0.4s ease-in-out;
   outline: 0;
-  margin-bottom: 5px;
+  text-decoration: none;
 }
 
-.menuItems button:hover {
+.menuItems a:hover {
   box-shadow: 5px 5px var(--color-accent);
 }
 
-.menuItems button + button {
-  margin-top: 20px;
+.currentLevel {
+  border-color: var(--color-primary);
+  cursor: default;
 }

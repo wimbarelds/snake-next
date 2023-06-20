@@ -28,7 +28,7 @@
 
 .submitHighscore input,
 .submitHighscore button {
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   height: 36px;
   padding: 5px 10px;
 }

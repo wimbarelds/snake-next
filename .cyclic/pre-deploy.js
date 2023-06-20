@@ -3,7 +3,7 @@ const { copySync, readFileSync, writeFileSync, existsSync } = require('fs-extra'
 const process = require('process');
 
 console.log('-- Cyclic, pre-deploy script');
-if (!process.env.IS_CYCLIC && false) {
+if (!process.env.IS_CYCLIC) {
   console.log('process.env.IS_CYCLIC', false, '(Skipping script)');
   process.exit(0);
 }

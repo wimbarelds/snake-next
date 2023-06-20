@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import styles from './styles.module.css';
+import { useShowAlert } from '@/components/AlertProvider/AlertProvider';
 
 interface Props {
   numPlayers: number;
@@ -12,6 +13,7 @@ export function BotLoader({ numPlayers, onClose, onPlayBot }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [botUrl, setBotUrl] = useState('');
+  const showAlert = useShowAlert();
 
   const fileName = file?.name ?? 'No file selected';
 
@@ -25,7 +27,7 @@ export function BotLoader({ numPlayers, onClose, onPlayBot }: Props) {
 
   const onFileSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return alert('Must pick file');
+    if (!file) return showAlert('Must pick file');
     const bots: Worker[] = new Array(numPlayers)
       .fill(null)
       .map(() => new Worker(URL.createObjectURL(file)));

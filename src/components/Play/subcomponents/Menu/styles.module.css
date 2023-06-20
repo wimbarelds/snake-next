@@ -27,7 +27,7 @@
   text-align: center;
 }
 
-.numPlayersButtons button + button {
+.numPlayersButtons button+button {
   margin-left: 20px;
 }
 
@@ -41,7 +41,7 @@
   padding: 10px;
   text-align: left;
   border: 0;
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   border: solid var(--color-accent) 1px;
   cursor: pointer;
   box-shadow: 0px 0px var(--color-accent);

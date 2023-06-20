@@ -28,7 +28,7 @@
 .metaInfo button {
   background: var(--color-primary);
   border: 0;
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   color: var(--color-secondary);
   padding: 10px;
   cursor: pointer;
@@ -47,7 +47,7 @@
   padding: 0 10px;
   background-color: transparent;
   color: var(--color-primary);
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   outline: 0;
   cursor: pointer;
   line-height: 1;
@@ -79,7 +79,7 @@
   padding: 0 5px;
   background-color: transparent;
   color: var(--color-primary);
-  font-family: 'Arcade Normal';
+  font-family: var(--font-arcade);
   outline: 0;
   cursor: pointer;
   line-height: 1;
@@ -105,7 +105,7 @@
     border-right: 0;
   }
 
-  .tools button + button {
+  .tools button+button {
     margin-top: 10px;
   }
 

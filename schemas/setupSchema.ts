@@ -10,5 +10,11 @@ export const setupSchema = defineType({
       name: 'status',
       title: 'Status',
     }),
+    defineField({
+      type: 'reference',
+      name: 'defaultLevel',
+      title: 'Default Level',
+      to: [{ type: 'level' }],
+    }),
   ],
 });

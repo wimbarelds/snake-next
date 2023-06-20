@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import { saveMap } from '@/actions/actions';
 import { theme } from '../Play/Play';
+import { useShowAlert } from '../AlertProvider/AlertProvider';
 
 const tools = ['Draw Wall', 'Place Snake', 'Erase Wall'] as const;
 type Tool = (typeof tools)[number];
@@ -63,6 +64,7 @@ export function Edit() {
   const [wallTiles, setWallTiles] = useState<Pos[]>([]);
   const [snakeTiles, setSnakeTiles] = useState<Pos[][]>([[...initialSnakePos]]);
   const [curSnakeIndex, setCurSnakeIndex] = useState(0);
+  const showAlert = useShowAlert();
 
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const wallCanvasRef = useRef<HTMLCanvasElement>();
@@ -233,8 +235,8 @@ export function Edit() {
 
   const save = useCallback(async () => {
     const name = levelName.trim();
-    if (!name) return alert('You havent named your level');
-    if (!wallTiles?.length) return alert('You have to place some walls first!');
+    if (!name) return showAlert('You havent named your level');
+    if (!wallTiles?.length) return showAlert('You have to place some walls first!');
     const result = await saveMap({
       levelName: name,
       sessionId: sessionIdRef.current,
@@ -242,9 +244,9 @@ export function Edit() {
       snakeTiles,
     });
     if (result.success) {
-      alert('Level was saved');
+      showAlert('Level was saved');
     } else {
-      alert('Error saving level');
+      showAlert('Error saving level');
     }
   }, [levelName, wallTiles, sessionIdRef, snakeTiles]);
 

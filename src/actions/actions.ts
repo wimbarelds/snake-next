@@ -41,8 +41,12 @@ interface PlaySession {
 const playSessions: PlaySession[] = [];
 
 export async function levelExists(levelName: string): Promise<boolean> {
-  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`);
+  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`, {levelName});
   return !!count;
+}
+
+export async function getDefaultLevelName(): Promise<string> {
+  return await client.fetch(`*[_id == "setup"][0]{defaultLevel->{levelName}}.defaultLevel.levelName`);
 }
 
 type SanityLevel = SanityDocument &

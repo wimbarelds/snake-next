@@ -6,25 +6,19 @@ import { GameState } from '../../Play';
 export type Player = string | null;
 
 interface Props {
-  levelName: string;
-  level?: Level;
+  level: Level;
   numPlayers: number;
-  onSetLevelName: (levelName: string) => void;
   onSetGameState: (state: GameState) => void;
   onSetNumPlayers: (num: number) => void;
 }
 
 export function Menu({
-  levelName,
   level,
   numPlayers,
-  onSetLevelName,
   onSetGameState,
   onSetNumPlayers,
 }: Props) {
-  const levelLoaded = !!level;
-  const levelNameLoading = levelLoaded ? levelName : 'Loading';
-  const maxNumPlayers = level ? level.snakeTiles.length : 0;
+  const maxNumPlayers = level.snakeTiles.length;
   const players = useMemo(() => {
     return Array(3)
       .fill('')
@@ -56,17 +50,15 @@ export function Menu({
             type="button"
             className={styles.button}
             onClick={() => onSetGameState('play')}
-            disabled={!levelLoaded}
           >
             Start game
-            <span className={styles.smallText}>{levelNameLoading}</span>
+            <span className={styles.smallText}>{level.levelName}</span>
           </button>
           {/* <button type="button" className={styles.button} onClick={() => onSetGameState('manage-controls')} disabled={!levelLoaded}>Keybindings</button> */}
           <button
             type="button"
             className={styles.button}
             onClick={() => onSetGameState('manage-bots')}
-            disabled={!levelLoaded}
           >
             Manage bots
           </button>
@@ -74,7 +66,6 @@ export function Menu({
             type="button"
             className={styles.button}
             onClick={() => onSetGameState('choose-level')}
-            disabled={!levelLoaded}
           >
             Choose level
           </button>
@@ -82,7 +73,6 @@ export function Menu({
             type="button"
             className={styles.button}
             onClick={() => onSetGameState('highscores')}
-            disabled={!levelLoaded}
           >
             Show highscores
           </button>

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHighscores, submitHighscore } from '@/actions/actions';
 import { useCallback, useState } from 'react';
 import styles from './styles.module.css';
+import { useShowAlert } from '@/components/AlertProvider/AlertProvider';
 
 interface Props {
   levelName: string;
@@ -23,6 +24,7 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
   });
   const [playerName, setPlayername] = useState('');
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
+  const showAlert = useShowAlert();
   const playerScore = playerResult?.score ?? 0;
   const playerHasHighscore =
     highscores && playerScore && highscores.some((highscore) => highscore.score < playerScore);
@@ -31,7 +33,7 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
   const mutateHighscores = useMutation({
     mutationFn: submitHighscore,
     onError: (err: string) => {
-      alert(err);
+      showAlert(err);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['highscores', levelName], data);

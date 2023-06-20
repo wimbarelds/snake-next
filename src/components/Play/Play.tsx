@@ -5,8 +5,7 @@ import { Highscores } from './subcomponents/Highscores/Highscores';
 import { Level, SnakeAgentController, SnakeGame } from '@/game/SnakeGame';
 import { SnakeRenderer, Theme } from '@/game/SnakeRenderer';
 import { InputHistory, SnakePlayer } from '@/game/SnakePlayer';
-import { useQuery } from '@tanstack/react-query';
-import { getLevel, getPlayId } from '@/actions/actions';
+import { getPlayId } from '@/actions/actions';
 import { keyBindings } from '@/game/SnakeKeyBindings';
 import { LevelPicker } from './subcomponents/LevelPicker/LevelPicker';
 import { BotLoader } from './subcomponents/BotLoader/BotLoader';
@@ -14,6 +13,7 @@ import { Scores } from './subcomponents/Scores/Scores';
 import { Menu } from './subcomponents/Menu/Menu';
 import { SnakeRecording } from '@/game/SnakeRecording';
 import { SnakeBot } from '@/game/SnakeBot';
+import { useShowAlert } from '../AlertProvider/AlertProvider';
 
 interface GamePlayerState {
   playId: string;
@@ -51,14 +51,14 @@ export type GameState =
   | 'manage-controls'
   | 'manage-bots';
 
-export function Play() {
+export function Play({level, levelNames}: {level: Level, levelNames: string[]}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<GameState>('menu');
   const [scores, setScores] = useState([0]);
-  const [levelName, setLevelName] = useState('cw-level');
   const [numPlayers, __setNumPlayers] = useState(1);
   const [playerResult, setPlayerResult] = useState<GamePlayerResult | null>(null);
   const sessionIdRef = useRef(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(32));
+  const showAlert = useShowAlert();
 
   // Created/Mounted
   useEffect(() => {
@@ -69,15 +69,6 @@ export function Play() {
     }
   }, [sessionIdRef]);
 
-  const {
-    isLoading: levelLoading,
-    error: levelError,
-    data: level,
-  } = useQuery<Level>({
-    queryKey: ['level', levelName],
-    queryFn: () => getLevel(levelName),
-  });
-
   const maxNumPlayers = level ? level.snakeTiles.length : 0;
   const showBotLoader = gameState === 'manage-bots';
   const showLevelPicker = gameState === 'choose-level';
@@ -85,25 +76,20 @@ export function Play() {
   const showHighscores = gameState === 'highscores';
   const showMenu = gameState === 'menu';
 
-  useEffect(() => setGameState('menu'), [levelName]);
-
   const setNumPlayers = useCallback(
     (num: number) => {
-      if (levelLoading) {
-        alert('Level is loading');
-        return;
-      } else if (num > maxNumPlayers) {
-        alert(`This map only supports ${maxNumPlayers} players`);
+      if (num > maxNumPlayers) {
+        showAlert(`This map only supports ${maxNumPlayers} players`);
         __setNumPlayers(maxNumPlayers);
         return;
       } else if (num < 1) {
-        alert('Stop being such a jerk');
+        showAlert('Stop being such a jerk', 'Jerk Alert');
         return;
       } else {
         __setNumPlayers(num);
       }
     },
-    [levelLoading, maxNumPlayers],
+    [maxNumPlayers],
   );
 
   useEffect(() => level && setNumPlayers(numPlayers));
@@ -113,8 +99,8 @@ export function Play() {
       const canvas = canvasRef.current;
       const context = canvas?.getContext('2d');
       // TODO: Proper alert
-      if (!context || !level || levelLoading) {
-        alert('Cant play when level and canvas arent loaded');
+      if (!context) {
+        showAlert('Cant play when level and canvas arent loaded');
         return;
       }
 
@@ -128,7 +114,7 @@ export function Play() {
       renderer.destroy();
       setTimeout(() => setGameState('highscores'), 500);
     },
-    [canvasRef, level, levelLoading, theme],
+    [canvasRef, level, theme],
   );
 
   const setScore = useCallback(({ playerIndex, score }: { playerIndex: number; score: number }) => {
@@ -161,8 +147,8 @@ export function Play() {
     const canvas = canvasRef.current;
     const context = canvas?.getContext('2d');
     // TODO: Proper alert
-    if (!context || !level || levelLoading) {
-      alert('Cant play when level and canvas arent loaded');
+    if (!context) {
+      showAlert('Cant play when canvas not ready');
       return;
     }
 
@@ -179,7 +165,7 @@ export function Play() {
       (agent, index) => new SnakePlayer(agent, keyBindings[index]),
     );
     game.gameover.then(() => playersGameoverHandler({ playId, game, renderer, players }));
-  }, [canvasRef, level, levelLoading, numPlayers, sessionIdRef]);
+  }, [canvasRef, level, numPlayers, sessionIdRef]);
 
   const closeHighscores = useCallback(() => {
     setGameState('menu');
@@ -201,8 +187,8 @@ export function Play() {
       const canvas = canvasRef.current;
       const context = canvas?.getContext('2d');
       // TODO: Proper alert
-      if (!context || !level || levelLoading) {
-        alert('Cant play when level and canvas arent loaded');
+      if (!context) {
+        showAlert('Cant play when level and canvas isnt ready');
         return;
       }
 
@@ -218,7 +204,7 @@ export function Play() {
 
       game.gameover.then(() => botGameoverHandler({ playId, game, renderer, players: botPlayers }));
     },
-    [level, levelLoading, canvasRef, sessionIdRef, botGameoverHandler],
+    [level, canvasRef, sessionIdRef, botGameoverHandler],
   );
 
   useEffect(() => {
@@ -232,23 +218,21 @@ export function Play() {
       {showScores && <Scores scores={scores} />}
       {showMenu && (
         <Menu
-          levelName={levelName}
           level={level}
           numPlayers={numPlayers}
-          onSetLevelName={setLevelName}
           onSetGameState={setGameState}
           onSetNumPlayers={setNumPlayers}
         />
       )}
       {showHighscores && (
         <Highscores
-          levelName={levelName}
+          levelName={level.levelName}
           playerResult={playerResult}
           onClose={closeHighscores}
           onStartReplay={startReplay}
         />
       )}
-      {showLevelPicker && <LevelPicker onSetLevelName={setLevelName} />}
+      {showLevelPicker && <LevelPicker levels={levelNames} />}
       {showBotLoader && (
         <BotLoader numPlayers={numPlayers} onClose={() => closeBotLoader()} onPlayBot={playBot} />
       )}

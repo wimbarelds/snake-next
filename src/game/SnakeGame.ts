@@ -21,7 +21,7 @@ export interface Pos {
 }
 
 export interface Level {
-  levelName: String;
+  levelName: string;
   snakeTiles: Pos[][];
   wallTiles: Pos[];
 }
