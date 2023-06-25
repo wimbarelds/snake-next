@@ -1,33 +1,15 @@
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from './SnakeRenderer';
+import seedRandom from 'seed-random';
 
-const seedRandom: any = require('seed-random'); // For repeatable candy placements
+import { DIRECTIONS } from './constants';
+import type { Level, Pos, ScoreCallback } from './types';
+import { isOutOfBounds } from './util';
+
+// For repeatable candy placements
 const NUM_CANDY_ON_MAP = 25;
-
-export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
-
-export const DIRECTIONS: { [d in Direction]: Pos } = {
-  UP: { x: 0, y: -10 },
-  DOWN: { x: 0, y: 10 },
-  LEFT: { x: -10, y: 0 },
-  RIGHT: { x: 10, y: 0 },
-};
-
-export interface Pos {
-  x: number;
-  y: number;
-}
-
-export interface Level {
-  levelName: String;
-  snakeTiles: Pos[];
-  wallTiles: Pos[];
-}
-
-type ScoreCallback = (score: number) => any;
 
 export class Snake {
   private level: Level;
-  private _score: number = 0;
+  private _score = 0;
   private wallTiles: Pos[];
   private floorTiles: Pos[];
   private candyTiles: Pos[] = [];
@@ -54,7 +36,7 @@ export class Snake {
     this.placeCandy(NUM_CANDY_ON_MAP);
   }
 
-  public addScoreListener(callback: (score: number) => any) {
+  public addScoreListener(callback: ScoreCallback) {
     this.scoreCallbacks.push(callback);
   }
 
@@ -64,14 +46,19 @@ export class Snake {
     this.snakeTiles.forEach((snakeTile) => floorTiles.push({ x: snakeTile.x, y: snakeTile.y }));
     // Then expand outwards from there in all directions until a wall is hit
     // Create a map in which we record which tiles have been scanned, so we don't scan anything twice
-    const scannedMap = this.snakeTiles.reduce((acc: any, curr): any => {
-      acc[`${curr.x}.${curr.y}`] = true;
-      return acc;
-    }, {});
+    type ScanKey = `${number}.${number}`;
+    type ScanMap = { [key: ScanKey]: true };
+    const scannedMap = this.snakeTiles.reduce(
+      (acc: ScanMap, curr): ScanMap => ({
+        ...acc,
+        [`${curr.x}.${curr.y}`]: true,
+      }),
+      {},
+    );
 
     // Create a list of tiles to search from
     let searchFromTiles = floorTiles.slice();
-    while (true) {
+    for (;;) {
       const newTiles: Pos[] = [];
       for (const floorTile of searchFromTiles) {
         const search = [
@@ -81,25 +68,25 @@ export class Snake {
           { x: floorTile.x, y: floorTile.y + 10 },
         ];
         for (const tile of search) {
-          const key = `${tile.x}.${tile.y}`;
+          const key: ScanKey = `${tile.x}.${tile.y}`;
           if (scannedMap[key]) continue; // If we've already scanned this tile, ignore it
           scannedMap[key] = true; // Otherwise we're scanning it now, so adding it to the list
           if (this.isWallCollisionAt(tile)) continue; // If there is a wall here, it's not a floor tile
-          if (this.isOutOfBounds(tile)) continue;
+          if (isOutOfBounds(tile)) continue;
           newTiles.push(tile);
         }
       }
       // If we haven't found any new tiles, we're done
       if (newTiles.length === 0) break;
       // Add all the newly found tiles to the floorTiles list
-      floorTiles.push.apply(floorTiles, newTiles);
+      floorTiles.push(...newTiles);
       // Then search from the new
       searchFromTiles = newTiles;
     }
     return floorTiles;
   }
 
-  private getRandom(min: number = 0, max: number = 1, floored: boolean = false) {
+  private getRandom(min = 0, max = 1, floored = false) {
     const delta = max - min;
     const value = min + this.randomizer() * delta;
     return floored ? Math.floor(value) : value;
@@ -129,24 +116,16 @@ export class Snake {
     return false;
   }
 
-  private isOutOfBounds(pos: Pos): boolean {
-    if (pos.x < 0) return true;
-    if (pos.y < 0) return true;
-    if (pos.x >= CANVAS_WIDTH) return true;
-    if (pos.y >= CANVAS_HEIGHT) return true;
-    return false;
-  }
-
   private isTailCollision() {
     const head = this.snakeTiles[this.snakeTiles.length - 1];
-    for (let i = 0; i < this.snakeTiles.length - 2; i++) {
+    for (let i = 0; i < this.snakeTiles.length - 2; i += 1) {
       const tailBit = this.snakeTiles[i];
       if (tailBit.x === head.x && tailBit.y === head.y) return true;
     }
     return false;
   }
 
-  private placeCandy(n: number = 1): Pos[] {
+  private placeCandy(n = 1): Pos[] {
     const validTiles = this.floorTiles.filter((floorTile) => {
       if (
         this.snakeTiles.some(
@@ -165,7 +144,7 @@ export class Snake {
 
     const placements: Pos[] = [];
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i += 1) {
       if (validTiles.length === 0) break;
       const tileIndex = this.getRandom(0, validTiles.length, true);
       const tile = validTiles.splice(tileIndex, 1)[0];
@@ -212,11 +191,7 @@ export class Snake {
     const newHeadPos = { x: oldHead.x + this.direction.x, y: oldHead.y + this.direction.y };
     this.snakeTiles.push(newHeadPos);
     // Check if we ran into a wall
-    if (
-      this.isWallCollisionAt(newHeadPos) ||
-      this.isOutOfBounds(newHeadPos) ||
-      this.isTailCollision()
-    ) {
+    if (this.isWallCollisionAt(newHeadPos) || isOutOfBounds(newHeadPos) || this.isTailCollision()) {
       return false;
     }
     // If we cannot remove a candy at the snake tail end, then chop off it's tail (otherwise leave it, letting the snake extend)
@@ -225,7 +200,7 @@ export class Snake {
     }
     // Check for candy collisions at head
     if (this.indexOfCandyAt(newHeadPos) !== -1) {
-      this.score++;
+      this.score += 1;
       const candyPlaced: Pos[] = this.placeCandy();
       return candyPlaced;
     }

@@ -13,7 +13,7 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [deskTool(), visionTool()],
-
+  basePath: '/studio',
   schema: {
     types: [highscoreSchema, levelSchema, tileSchema, setupSchema],
   },

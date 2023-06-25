@@ -1,19 +1,24 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Highscores } from './subcomponents/Highscores/Highscores';
-import { Level, SnakeAgentController, SnakeGame } from '@/game/SnakeGame';
-import { SnakeRenderer, Theme } from '@/game/SnakeRenderer';
-import { InputHistory, SnakePlayer } from '@/game/SnakePlayer';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { getPlayId } from '@/actions/actions';
-import { keyBindings } from '@/game/SnakeKeyBindings';
-import { LevelPicker } from './subcomponents/LevelPicker/LevelPicker';
-import { BotLoader } from './subcomponents/BotLoader/BotLoader';
-import { Scores } from './subcomponents/Scores/Scores';
-import { Menu } from './subcomponents/Menu/Menu';
-import { SnakeRecording } from '@/game/SnakeRecording';
 import { SnakeBot } from '@/game/SnakeBot';
+import type { Level, SnakeAgentController } from '@/game/SnakeGame';
+import { SnakeGame } from '@/game/SnakeGame';
+import { keyBindings } from '@/game/SnakeKeyBindings';
+import type { InputHistory } from '@/game/SnakePlayer';
+import { SnakePlayer } from '@/game/SnakePlayer';
+import { SnakeRecording } from '@/game/SnakeRecording';
+import type { Theme } from '@/game/SnakeRenderer';
+import { SnakeRenderer } from '@/game/SnakeRenderer';
+
 import { useShowAlert } from '../AlertProvider/AlertProvider';
+import { BotLoader } from './subcomponents/BotLoader/BotLoader';
+import { Highscores } from './subcomponents/Highscores/Highscores';
+import { LevelPicker } from './subcomponents/LevelPicker/LevelPicker';
+import { Menu } from './subcomponents/Menu/Menu';
+import { Scores } from './subcomponents/Scores/Scores';
 
 interface GamePlayerState {
   playId: string;
@@ -51,7 +56,7 @@ export type GameState =
   | 'manage-controls'
   | 'manage-bots';
 
-export function Play({level, levelNames}: {level: Level, levelNames: string[]}) {
+export function Play({ level, levelNames }: { level: Level; levelNames: string[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<GameState>('menu');
   const [scores, setScores] = useState([0]);
@@ -82,17 +87,23 @@ export function Play({level, levelNames}: {level: Level, levelNames: string[]}) 
         showAlert(`This map only supports ${maxNumPlayers} players`);
         __setNumPlayers(maxNumPlayers);
         return;
-      } else if (num < 1) {
+      }
+      if (num < 1) {
         showAlert('Stop being such a jerk', 'Jerk Alert');
         return;
-      } else {
-        __setNumPlayers(num);
       }
+      __setNumPlayers(num);
     },
-    [maxNumPlayers],
+    [maxNumPlayers, showAlert],
   );
 
   useEffect(() => level && setNumPlayers(numPlayers));
+
+  const setScore = useCallback(({ playerIndex, score }: { playerIndex: number; score: number }) => {
+    setScores((prevScores) =>
+      prevScores.map((value, valueIndex) => (valueIndex === playerIndex ? score : value)),
+    );
+  }, []);
 
   const startReplay = useCallback(
     async ({ playId, inputHistory }: { playId: string; inputHistory: InputHistory }) => {
@@ -114,14 +125,8 @@ export function Play({level, levelNames}: {level: Level, levelNames: string[]}) 
       renderer.destroy();
       setTimeout(() => setGameState('highscores'), 500);
     },
-    [canvasRef, level, theme],
+    [canvasRef, level, setScore, showAlert],
   );
-
-  const setScore = useCallback(({ playerIndex, score }: { playerIndex: number; score: number }) => {
-    setScores((prevScores) =>
-      prevScores.map((value, valueIndex) => (valueIndex === playerIndex ? score : value)),
-    );
-  }, []);
 
   const playersGameoverHandler = useCallback(
     (state: GamePlayerState) => {
@@ -165,7 +170,7 @@ export function Play({level, levelNames}: {level: Level, levelNames: string[]}) 
       (agent, index) => new SnakePlayer(agent, keyBindings[index]),
     );
     game.gameover.then(() => playersGameoverHandler({ playId, game, renderer, players }));
-  }, [canvasRef, level, numPlayers, sessionIdRef]);
+  }, [canvasRef, level, numPlayers, sessionIdRef, playersGameoverHandler, setScore, showAlert]);
 
   const closeHighscores = useCallback(() => {
     setGameState('menu');
@@ -204,14 +209,14 @@ export function Play({level, levelNames}: {level: Level, levelNames: string[]}) 
 
       game.gameover.then(() => botGameoverHandler({ playId, game, renderer, players: botPlayers }));
     },
-    [level, canvasRef, sessionIdRef, botGameoverHandler],
+    [level, canvasRef, sessionIdRef, botGameoverHandler, setScore, showAlert],
   );
 
   useEffect(() => {
     if (gameState === 'play') {
       play();
     }
-  }, [gameState]);
+  }, [gameState, play]);
 
   return (
     <div className="play">

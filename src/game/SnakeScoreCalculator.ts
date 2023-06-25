@@ -1,26 +1,19 @@
-import { InputHistory } from './SnakePlayer';
-import { SnakeGame, Level, Direction, DIRECTIONS } from './SnakeGame';
+import { DIRECTIONS } from './constants';
+import type { Level } from './SnakeGame';
+import { SnakeGame } from './SnakeGame';
+import type { InputHistory } from './SnakePlayer';
 
 export function SnakeScoreCalculator(playId: string, level: Level, inputHistory: InputHistory) {
   const game = new SnakeGame(playId, level, 1);
   const agent = game.snakeAgents[0];
-  let tick = 0;
-  let gameover = false;
-  while (!gameover) {
-    const input: Direction | null =
-      inputHistory.UP.indexOf(tick) >= 0
-        ? 'UP'
-        : inputHistory.DOWN.indexOf(tick) >= 0
-        ? 'DOWN'
-        : inputHistory.LEFT.indexOf(tick) >= 0
-        ? 'LEFT'
-        : inputHistory.RIGHT.indexOf(tick) >= 0
-        ? 'RIGHT'
-        : null;
+
+  for (let tick = 0, gameover = false; !gameover; tick += 1) {
+    const directions = Object.keys(inputHistory) as Array<keyof typeof inputHistory>;
+    const input = directions.find((direction) => inputHistory[direction].includes(tick));
 
     if (input) agent.setDirection(DIRECTIONS[input]);
     gameover = !agent.tick();
-    tick++;
+    tick += 1;
   }
   return agent.getScore();
 }

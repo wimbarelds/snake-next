@@ -27,7 +27,7 @@
   text-align: center;
 }
 
-.numPlayersButtons button+button {
+.numPlayersButtons button + button {
   margin-left: 20px;
 }
 

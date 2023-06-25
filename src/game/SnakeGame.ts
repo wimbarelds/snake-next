@@ -1,24 +1,14 @@
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from './SnakeRenderer';
-import { SnakeAgent } from './SnakeAgent';
+import seedRandom from 'seed-random';
 
-const seedRandom: any = require('seed-random'); // For repeatable candy placements
+import { SnakeAgent } from './SnakeAgent';
+import type { Pos } from './types';
+import { isOutOfBounds } from './util';
+
+// For repeatable candy placements
 const NUM_CANDY_ON_MAP = 25;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GameScoreCallback = ({ playerIndex, score }: { playerIndex: number; score: number }) => any;
-
-export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
-
-export const DIRECTIONS: { [d in Direction]: Pos } = {
-  UP: { x: 0, y: -10 },
-  DOWN: { x: 0, y: 10 },
-  LEFT: { x: -10, y: 0 },
-  RIGHT: { x: 10, y: 0 },
-};
-
-export interface Pos {
-  x: number;
-  y: number;
-}
 
 export interface Level {
   levelName: string;
@@ -51,7 +41,7 @@ export class SnakeGame {
     this.level = cloneLevel(level);
     this.agents = new Array(numPlayers)
       .fill(0)
-      .map((x, agentIndex) => new SnakeAgent(this, this.level.snakeTiles[agentIndex]));
+      .map((_, agentIndex) => new SnakeAgent(this, this.level.snakeTiles[agentIndex]));
     this.wallTiles = this.level.wallTiles
       .slice()
       .sort((a, b) => (a.x === b.x ? a.y - b.y : a.x - b.x)); // if we sort our wall tiles we search for collision checks much faster
@@ -71,26 +61,31 @@ export class SnakeGame {
   }
 
   private get snakeTiles() {
-    return this.agents.reduce((tiles: Pos[], agent: SnakeAgent): Pos[] => {
-      tiles.push.apply(tiles, agent.getTiles());
-      return tiles;
-    }, []);
+    return this.agents.reduce(
+      (tiles: Pos[], agent: SnakeAgent): Pos[] => [...tiles, ...agent.getTiles()],
+      [],
+    );
   }
 
   private computeFloorTiles(): Pos[] {
     const floorTiles: Pos[] = [];
     // First copy our snake tiles as floor tiles as the snake must always start on valid floortiles
-    floorTiles.push.apply(floorTiles, this.snakeTiles);
+    floorTiles.push(...this.snakeTiles);
     // Then expand outwards from there in all directions until a wall is hit
     // Create a map in which we record which tiles have been scanned, so we don't scan anything twice
-    const scannedMap = floorTiles.reduce((acc: any, curr): any => {
-      acc[`${curr.x}.${curr.y}`] = true;
-      return acc;
-    }, {});
+    type ScanKey = `${number}.${number}`;
+    type ScanMap = { [key: ScanKey]: true };
+    const scannedMap = floorTiles.reduce(
+      (acc: ScanMap, curr): ScanMap => ({
+        ...acc,
+        [`${curr.x}.${curr.y}`]: true,
+      }),
+      {},
+    );
 
     // Create a list of tiles to search from
     let searchFromTiles = floorTiles.slice();
-    while (true) {
+    for (;;) {
       const newTiles: Pos[] = [];
       for (const floorTile of searchFromTiles) {
         const search = [
@@ -100,25 +95,25 @@ export class SnakeGame {
           { x: floorTile.x, y: floorTile.y + 10 },
         ];
         for (const tile of search) {
-          const key = `${tile.x}.${tile.y}`;
-          if (scannedMap[key]) continue; // If we've already scanned this tile, ignore it
+          const key: `${number}.${number}` = `${tile.x}.${tile.y}`;
+          if (key in scannedMap) continue; // If we've already scanned this tile, ignore it
           scannedMap[key] = true; // Otherwise we're scanning it now, so adding it to the list
           if (this.isWallCollisionAt(tile)) continue; // If there is a wall here, it's not a floor tile
-          if (this.isOutOfBoundsAt(tile)) continue;
+          if (isOutOfBounds(tile)) continue;
           newTiles.push(tile);
         }
       }
       // If we haven't found any new tiles, we're done
       if (newTiles.length === 0) break;
       // Add all the newly found tiles to the floorTiles list
-      floorTiles.push.apply(floorTiles, newTiles);
+      floorTiles.push(...newTiles);
       // Then search from the new
       searchFromTiles = newTiles;
     }
     return floorTiles;
   }
 
-  private getRandom(min: number = 0, max: number = 1, floored: boolean = false) {
+  private getRandom(min = 0, max = 1, floored = false) {
     const delta = max - min;
     const value = min + this.randomizer() * delta;
     return floored ? Math.floor(value) : value;
@@ -134,7 +129,7 @@ export class SnakeGame {
 
   public addScoreListener(listener: GameScoreCallback) {
     // Add listeners to all agents and update our listeners whenever one of our agents reports a score change
-    for (let i = 0; i < this.agents.length; i++) {
+    for (let i = 0; i < this.agents.length; i += 1) {
       this.agents[i].addScoreListener((score: number) => {
         listener({ playerIndex: i, score });
       });
@@ -169,14 +164,6 @@ export class SnakeGame {
     return false;
   }
 
-  public isOutOfBoundsAt(pos: Pos): boolean {
-    if (pos.x < 0) return true;
-    if (pos.y < 0) return true;
-    if (pos.x >= CANVAS_WIDTH) return true;
-    if (pos.y >= CANVAS_HEIGHT) return true;
-    return false;
-  }
-
   public isSnakeCollisionAt(pos: Pos) {
     return this.agents.some((agent) => agent.isSnakeCollisionAt(pos));
   }
@@ -185,7 +172,7 @@ export class SnakeGame {
     return this.indexOfCandyAt(pos) !== -1;
   }
 
-  public placeCandy(n: number = 1): Pos[] {
+  public placeCandy(n = 1): Pos[] {
     const validTiles = this.floorTiles.filter((floorTile) => {
       if (
         this.snakeTiles.some(
@@ -204,7 +191,7 @@ export class SnakeGame {
 
     const placements: Pos[] = [];
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i += 1) {
       if (validTiles.length === 0) break;
       const tileIndex = this.getRandom(0, validTiles.length, true);
       const tile = validTiles.splice(tileIndex, 1)[0];

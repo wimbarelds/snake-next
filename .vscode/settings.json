@@ -1,0 +1,11 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": false,
+  "editor.rulers": [100],
+  "prettier.prettierPath": "./node_modules/prettier",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
+  "editor.detectIndentation": true,
+  // Runs ESLint and Prettier.
+  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll"]
+}

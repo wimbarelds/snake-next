@@ -9,6 +9,7 @@ export default function Page() {
         left over. Instead of having me do nothing, my team lead instead challenged me to make
         something fun for the 404 page.
       </p>
+      {/* eslint-disable-next-line */}
       <img src="/404.png" alt="Image of the 404 page snake game" />
       <p>
         A few hours later I had a very rough prototype of the snake game. But, I suppose I had more

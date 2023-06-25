@@ -1,7 +1,12 @@
-import { Pos, DIRECTIONS, SnakeGame, Direction } from './SnakeGame';
+import { DIRECTIONS } from './constants';
+import type { SnakeGame } from './SnakeGame';
 import { getDirectionKey } from './SnakePlayer';
+import type { Direction, Pos, ScoreCallback } from './types';
+import { isOutOfBounds } from './util';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AgentScoreCallback = (score: number) => any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AgentMoveCallback = (direction: Direction) => any;
 
 export class SnakeAgent {
@@ -10,7 +15,7 @@ export class SnakeAgent {
   private snakeGame: SnakeGame;
   private snakeTiles: Pos[];
   private direction: Pos = DIRECTIONS.DOWN;
-  private _score: number = 0;
+  private _score = 0;
   private scoreCallbacks: AgentScoreCallback[] = [];
   private moveCallbacks: AgentMoveCallback[] = [];
   private gameoverPromise: Promise<number>;
@@ -21,7 +26,7 @@ export class SnakeAgent {
     this.snakeTiles = snakeTiles;
 
     // Add game-over promise
-    this.gameoverPromise = new Promise((resolve, reject) => {
+    this.gameoverPromise = new Promise((resolve) => {
       this.gameoverPromiseResolver = () => resolve(this.score);
     });
   }
@@ -55,7 +60,7 @@ export class SnakeAgent {
     this.scoreCallbacks.forEach((callback) => callback(val));
   }
 
-  public addScoreListener(callback: (score: number) => any) {
+  public addScoreListener(callback: ScoreCallback) {
     this.scoreCallbacks.push(callback);
   }
 
@@ -83,7 +88,7 @@ export class SnakeAgent {
     const head = this.snakeHead;
     const dead =
       this.snakeGame.isSnakeCollisionAt(head) ||
-      this.snakeGame.isOutOfBoundsAt(head) ||
+      isOutOfBounds(head) ||
       this.snakeGame.isWallCollisionAt(head);
     if (dead) this.gameoverPromiseResolver();
     // Only remove the last tail bit if we didn't hit a candy (effectively keeping our snake's length)

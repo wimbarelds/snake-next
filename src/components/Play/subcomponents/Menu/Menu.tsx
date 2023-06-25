@@ -1,7 +1,9 @@
-import { Level } from '@/game/SnakeGame';
 import { useMemo } from 'react';
+
+import type { Level } from '@/game/SnakeGame';
+
+import type { GameState } from '../../Play';
 import styles from './styles.module.css';
-import { GameState } from '../../Play';
 
 export type Player = string | null;
 
@@ -12,18 +14,15 @@ interface Props {
   onSetNumPlayers: (num: number) => void;
 }
 
-export function Menu({
-  level,
-  numPlayers,
-  onSetGameState,
-  onSetNumPlayers,
-}: Props) {
+export function Menu({ level, numPlayers, onSetGameState, onSetNumPlayers }: Props) {
   const maxNumPlayers = level.snakeTiles.length;
-  const players = useMemo(() => {
-    return Array(3)
-      .fill('')
-      .map((v, i) => i + 1);
-  }, []);
+  const players = useMemo(
+    () =>
+      Array(3)
+        .fill('')
+        .map((_, i) => i + 1),
+    [],
+  );
 
   return (
     <div className={styles.backdrop}>
@@ -46,11 +45,7 @@ export function Menu({
               ))}
             </div>
           </div>
-          <button
-            type="button"
-            className={styles.button}
-            onClick={() => onSetGameState('play')}
-          >
+          <button type="button" className={styles.button} onClick={() => onSetGameState('play')}>
             Start game
             <span className={styles.smallText}>{level.levelName}</span>
           </button>

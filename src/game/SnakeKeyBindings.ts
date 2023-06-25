@@ -1,5 +1,5 @@
-import { KeyMap } from './SnakePlayer';
-import { Direction } from './SnakeGame';
+import type { KeyMap } from './SnakePlayer';
+import type { Direction } from './types';
 
 export const keyBindings: KeyMap[] =
   typeof window === 'object' && window?.localStorage?.keyBindings
@@ -37,12 +37,12 @@ export function saveBindings(keyMap: KeyMap, playerIndex: number) {
   const keyCodesInUse: number[] = Object.values(keyMap).filter(
     (keyCode) => !isKeyAvailable(keyCode),
   );
-  const unavailableKeyNames: Direction[] = (Object.keys(keyMap) as Direction[]).filter(
-    (keyName) => !keyCodesInUse.some((keyCode) => keyMap[keyName] === keyCode),
-  );
+  const unavailableKeyNames: Direction[] = (
+    Object.keys(keyMap) as Array<keyof typeof keyMap>
+  ).filter((keyName) => !keyCodesInUse.some((keyCode) => keyMap[keyName] === keyCode));
   if (unavailableKeyNames.length > 0)
     throw new Error(
-      'Some of the chosen keycodes are unavailable: ' + unavailableKeyNames.join(', '),
+      `Some of the chosen keycodes are unavailable: ${unavailableKeyNames.join(', ')}`,
     );
 
   if (playerIndex >= keyBindings.length) keyBindings.push(keyMap);

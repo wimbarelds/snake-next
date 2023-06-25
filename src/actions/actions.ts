@@ -1,12 +1,14 @@
 'use server';
 
-import { GamePlayerResult } from '@/components/Play/Play';
-import { Level, Pos } from '@/game/SnakeGame';
-import { Highscore } from '@/game/SnakePlayer';
-import { SnakeScoreCalculator } from '@/game/SnakeScoreCalculator';
 import { createClient } from '@sanity/client';
-import { SanityDocument } from 'sanity';
+import type { SanityDocument } from 'sanity';
 import { z } from 'zod';
+
+import type { GamePlayerResult } from '@/components/Play/Play';
+import type { Level } from '@/game/SnakeGame';
+import type { Highscore } from '@/game/SnakePlayer';
+import { SnakeScoreCalculator } from '@/game/SnakeScoreCalculator';
+import type { Pos } from '@/game/types';
 
 const projectId = process.env.SANITY_PROJECT_ID;
 const dataset = process.env.SANITY_DATASET;
@@ -41,12 +43,14 @@ interface PlaySession {
 const playSessions: PlaySession[] = [];
 
 export async function levelExists(levelName: string): Promise<boolean> {
-  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`, {levelName});
+  const count = await client.fetch(`count(*[_type == "level" levelName == $levelName]{_id})`, {
+    levelName,
+  });
   return !!count;
 }
 
 export async function getDefaultLevelName(): Promise<string> {
-  return await client.fetch(`*[_id == "setup"][0]{defaultLevel->{levelName}}.defaultLevel.levelName`);
+  return client.fetch(`*[_id == "setup"][0]{defaultLevel->{levelName}}.defaultLevel.levelName`);
 }
 
 type SanityLevel = SanityDocument &
@@ -64,7 +68,7 @@ export async function getLevel(levelName: string): Promise<SanityDocument & Leve
 }
 
 export async function getLevels(): Promise<string[]> {
-  return await client.fetch<string[]>(`*[_type == "level"].levelName`);
+  return client.fetch<string[]>(`*[_type == "level"].levelName`);
 }
 
 export async function getHighscores(levelName: string, limit = 10): Promise<Highscore[]> {
@@ -77,7 +81,7 @@ export async function getHighscores(levelName: string, limit = 10): Promise<High
       _updatedAt
     } | order(score desc, _updatedAt asc)[0...$limit]
   `;
-  return await client.fetch(query, { levelName, limit });
+  return client.fetch(query, { levelName, limit });
 }
 
 const playerResultDef = z.object({
@@ -102,28 +106,28 @@ export async function submitHighscore({
   playerResult: GamePlayerResult;
 }): Promise<Highscore[]> {
   const exists = await levelExists(levelName);
-  if (!exists) return Promise.reject('Level does not exist');
+  if (!exists) return Promise.reject(new Error('Level does not exist'));
   if (!playerResultDef.safeParse(playerResult).success)
-    return Promise.reject('Invalid playerResult provided');
+    return Promise.reject(new Error('Invalid playerResult provided'));
   if (
     !playSessions.some(
       (session) =>
         session.playId === playerResult.playId && session.sessionId === playerResult.sessionId,
     )
   ) {
-    return Promise.reject('No match found for combination of playId and sessionId');
+    return Promise.reject(new Error('No match found for combination of playId and sessionId'));
   }
 
   const level = await getLevel(levelName);
   const score = SnakeScoreCalculator(playerResult.playId, level, playerResult.inputHistory);
 
   if (score !== playerResult.score) {
-    return Promise.reject('Provided score did not pass validation-check');
+    return Promise.reject(new Error('Provided score did not pass validation-check'));
   }
 
   const highscores = await getHighscores(levelName);
-  if (!highscores.some(({ score }) => score < playerResult.score)) {
-    return Promise.reject('Score is not a highscore');
+  if (!highscores.some((highscore) => highscore.score < playerResult.score)) {
+    return Promise.reject(new Error('Score is not a highscore'));
   }
 
   await client.create({
@@ -136,7 +140,7 @@ export async function submitHighscore({
   });
 
   // TODO: This could be optimized
-  return await getHighscores(levelName);
+  return getHighscores(levelName);
 }
 
 export async function getPlayId(sessionId: string): Promise<string> {
@@ -152,17 +156,12 @@ export async function getPlayId(sessionId: string): Promise<string> {
   return playId;
 }
 
-export async function saveMap({
-  levelName,
-  sessionId,
-  wallTiles,
-  snakeTiles,
-}: {
+export async function saveMap(_: {
   levelName: string;
   sessionId: string;
   wallTiles: Pos[];
   snakeTiles: Pos[][];
 }) {
-  if (Math.random() !== 5) throw 'Not yet implemented';
+  if (Math.random() !== 5) throw new Error('Not yet implemented');
   return { success: true };
 }

@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 
-import styles from './styles.module.css';
 import { useShowAlert } from '@/components/AlertProvider/AlertProvider';
+
+import styles from './styles.module.css';
 
 interface Props {
   numPlayers: number;
@@ -25,32 +26,42 @@ export function BotLoader({ numPlayers, onClose, onPlayBot }: Props) {
     }
   }, []);
 
-  const onFileSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return showAlert('Must pick file');
-    const bots: Worker[] = new Array(numPlayers)
-      .fill(null)
-      .map(() => new Worker(URL.createObjectURL(file)));
-    onPlayBot(bots);
-  }, []);
+  const onFileSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!file) {
+        showAlert('Must pick file');
+        return;
+      }
+      const bots: Worker[] = new Array(numPlayers)
+        .fill(null)
+        .map(() => new Worker(URL.createObjectURL(file)));
+      onPlayBot(bots);
+      return;
+    },
+    [file, numPlayers, onPlayBot, showAlert],
+  );
 
-  const onURLSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    const url = botUrl || `${location.protocol}//${location.host}/wim-bot.js`;
-    const script = await fetch(url).then((res) => res.text());
-    const bots: Worker[] = new Array(numPlayers)
-      .fill(null)
-      .map(() => new Worker(URL.createObjectURL(new Blob([script]))));
-    onPlayBot(bots);
-  }, []);
+  const onURLSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      const url = botUrl || `${window.location.protocol}//${window.location.host}/wim-bot.js`;
+      const script = await fetch(url).then((res) => res.text());
+      const bots: Worker[] = new Array(numPlayers)
+        .fill(null)
+        .map(() => new Worker(URL.createObjectURL(new Blob([script]))));
+      onPlayBot(bots);
+    },
+    [botUrl, numPlayers, onPlayBot],
+  );
 
   return (
     <div className="overlay__container">
-      <div className="overlay__backdrop"></div>
+      <div className="overlay__backdrop" />
       <div className="overlay__content modal">
         <div className="modal__title">
           <h2>Bot loader</h2>
-          <button className="modal__close" onClick={onClose}>
+          <button className="modal__close" onClick={onClose} type="button">
             &times;
           </button>
         </div>
@@ -79,7 +90,7 @@ export function BotLoader({ numPlayers, onClose, onPlayBot }: Props) {
             <h3>Pick a file</h3>
             <div className="form">
               <label className="upload-file">
-                <span className={'filename' + !file ? 'empty' : ''}>{fileName}</span>
+                <span className={`filename${!file ? 'empty' : ''}`}>{fileName}</span>
                 <input type="file" required ref={fileInputRef} onChange={onFileChange} />
               </label>
               <button type="submit">Load bot from File</button>

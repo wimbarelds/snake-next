@@ -1,10 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import styles from './styles.module.css';
+
 import { saveMap } from '@/actions/actions';
-import { theme } from '../Play/Play';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/game/constants';
+
 import { useShowAlert } from '../AlertProvider/AlertProvider';
+import { theme } from '../Play/Play';
+import styles from './styles.module.css';
 
 const tools = ['Draw Wall', 'Place Snake', 'Erase Wall'] as const;
 type Tool = (typeof tools)[number];
@@ -17,43 +20,38 @@ interface Pos {
 const normalizedCursorPosFromEvent = (
   e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
   canvas: HTMLElement,
-): Pos => {
-  return {
-    x: Math.floor(((e.nativeEvent.offsetX / canvas.clientWidth) * canvasWidth) / 10) * 10,
-    y: Math.floor(((e.nativeEvent.offsetY / canvas.clientHeight) * canvasHeight) / 10) * 10,
-  };
-};
+): Pos => ({
+  x: Math.floor(((e.nativeEvent.offsetX / canvas.clientWidth) * CANVAS_WIDTH) / 10) * 10,
+  y: Math.floor(((e.nativeEvent.offsetY / canvas.clientHeight) * CANVAS_HEIGHT) / 10) * 10,
+});
 
 const initialSnakePos: Pos[] = [
   { x: 630, y: 320 },
   { x: 630, y: 330 },
 ];
 
-const canvasWidth = 1280;
-const canvasHeight = 640;
-
 let gridCanvas: HTMLCanvasElement | null = null;
 if (typeof window !== 'undefined') {
   gridCanvas = document.createElement('canvas');
 
   // grid canvas
-  gridCanvas.width = canvasWidth;
-  gridCanvas.height = canvasHeight;
+  gridCanvas.width = CANVAS_WIDTH;
+  gridCanvas.height = CANVAS_HEIGHT;
   const gridContext = gridCanvas.getContext('2d') as CanvasRenderingContext2D;
-  for (let x = 10; x < canvasWidth; x += 10) {
+  for (let x = 10; x < CANVAS_WIDTH; x += 10) {
     gridContext.beginPath();
     gridContext.strokeStyle = '#FFF';
     gridContext.setLineDash([0.25, 0.25]);
     gridContext.moveTo(x, 0);
-    gridContext.lineTo(x, canvasHeight);
+    gridContext.lineTo(x, CANVAS_HEIGHT);
     gridContext.stroke();
   }
-  for (let y = 10; y < canvasHeight; y += 10) {
+  for (let y = 10; y < CANVAS_HEIGHT; y += 10) {
     gridContext.beginPath();
     gridContext.strokeStyle = '#FFF';
     gridContext.setLineDash([0.25, 0.25]);
     gridContext.moveTo(0, y);
-    gridContext.lineTo(canvasWidth, y);
+    gridContext.lineTo(CANVAS_WIDTH, y);
     gridContext.stroke();
   }
 }
@@ -75,19 +73,21 @@ export function Edit() {
 
   useEffect(() => {
     wallCanvasRef.current = document.createElement('canvas');
-    wallCanvasRef.current.width = canvasWidth;
-    wallCanvasRef.current.height = canvasHeight;
+    wallCanvasRef.current.width = CANVAS_WIDTH;
+    wallCanvasRef.current.height = CANVAS_HEIGHT;
   }, []);
 
   useEffect(() => {
     if (!canvas) return;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
   }, [canvas]);
 
   // mounted
   useEffect(() => {
-    const mouseUpHandler = () => (mouseButtonDownRef.current = false);
+    const mouseUpHandler = () => {
+      mouseButtonDownRef.current = false;
+    };
     document.addEventListener('mouseup', mouseUpHandler);
 
     if (sessionStorage.sessionID) {
@@ -107,10 +107,10 @@ export function Edit() {
     if (curSnakeIndex >= numSnakes) {
       const newSnake = [...initialSnakePos];
       // Add a snake.
-      setSnakeTiles((snakeTiles) => [...snakeTiles, newSnake]);
+      setSnakeTiles((old) => [...old, newSnake]);
       // Remove walls in places where the new Snake is being placed.
-      setWallTiles((wallTiles) =>
-        wallTiles.filter(
+      setWallTiles((old) =>
+        old.filter(
           (wallPos) =>
             !newSnake.some((snakeDot) => snakeDot.x === wallPos.x && snakeDot.y === wallPos.y),
         ),
@@ -120,21 +120,21 @@ export function Edit() {
 
   const drawWallTile = useCallback(
     (x: number, y: number) => {
-      const context = wallCanvasRef.current?.getContext('2d');
-      if (!context) return;
-      context.beginPath();
-      context.fillStyle = theme.wallColor;
-      context.rect(x, y, 10, 10);
-      context.fill();
+      const wallCtx = wallCanvasRef.current?.getContext('2d');
+      if (!wallCtx) return;
+      wallCtx.beginPath();
+      wallCtx.fillStyle = theme.wallColor;
+      wallCtx.rect(x, y, 10, 10);
+      wallCtx.fill();
     },
     [wallCanvasRef],
   );
 
   const eraseWallTile = useCallback(
     (x: number, y: number) => {
-      const context = wallCanvasRef.current?.getContext('2d');
-      if (!context) return;
-      context.clearRect(x, y, 10, 10);
+      const wallCtx = wallCanvasRef.current?.getContext('2d');
+      if (!wallCtx) return;
+      wallCtx.clearRect(x, y, 10, 10);
     },
     [wallCanvasRef],
   );
@@ -152,10 +152,10 @@ export function Edit() {
 
   // RENDER FRAME
   useEffect(() => {
-    let animationFrame: number = 0;
+    let animationFrame = 0;
     function renderFrame() {
       if (!context) return;
-      context.clearRect(0, 0, canvasWidth, canvasHeight);
+      context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       if (wallCanvasRef.current) context.drawImage(wallCanvasRef.current, 0, 0);
       if (gridCanvas) context.drawImage(gridCanvas, 0, 0);
       renderSnake();
@@ -164,7 +164,7 @@ export function Edit() {
     renderFrame();
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [context, wallCanvasRef, gridCanvas, renderSnake]);
+  }, [context, wallCanvasRef, renderSnake]);
 
   const addWallTile = useCallback(
     (pos: Pos) => {
@@ -173,7 +173,7 @@ export function Edit() {
       setWallTiles((old) => [...old, pos]);
       drawWallTile(pos.x, pos.y);
     },
-    [wallTiles, snakeTiles],
+    [wallTiles, snakeTiles, drawWallTile],
   );
 
   const placeSnake = useCallback(
@@ -198,7 +198,7 @@ export function Edit() {
         eraseWallTile(pos.x, pos.y);
       }
     },
-    [wallTiles],
+    [wallTiles, eraseWallTile],
   );
 
   const onCursorDown = useCallback(
@@ -244,11 +244,10 @@ export function Edit() {
       snakeTiles,
     });
     if (result.success) {
-      showAlert('Level was saved');
-    } else {
-      showAlert('Error saving level');
+      return showAlert('Level was saved');
     }
-  }, [levelName, wallTiles, sessionIdRef, snakeTiles]);
+    return showAlert('Error saving level');
+  }, [levelName, wallTiles, sessionIdRef, snakeTiles, showAlert]);
 
   const reset = useCallback(() => {
     setLevelName('');
@@ -259,8 +258,8 @@ export function Edit() {
     (wallCanvasRef.current?.getContext('2d') as CanvasRenderingContext2D)?.clearRect(
       0,
       0,
-      canvasWidth,
-      canvasHeight,
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
     );
   }, []);
 
@@ -293,20 +292,25 @@ export function Edit() {
             Reset Level
           </button>
         </div>
-        <div className={styles.snakePicker} v-if="activeTool === 'Place Snake'">
-          Snake:
-          {new Array(3).fill(0).map((_, n) => (
-            <button
-              type="button"
-              className={`${styles.snakePick} ${curSnakeIndex === n ? styles.active : ''}`}
-              key={n}
-              disabled={n > snakeTiles.length}
-              onClick={() => setCurSnakeIndex(n)}
-            >
-              {n + 1}
-            </button>
-          ))}
-        </div>
+        {activeTool === 'Place Snake' && (
+          <div className={styles.snakePicker}>
+            Snake:
+            {new Array(3)
+              .fill(0)
+              .map((_, n) => n)
+              .map((n) => (
+                <button
+                  type="button"
+                  className={`${styles.snakePick} ${curSnakeIndex === n ? styles.active : ''}`}
+                  key={n}
+                  disabled={n > snakeTiles.length}
+                  onClick={() => setCurSnakeIndex(n)}
+                >
+                  {n + 1}
+                </button>
+              ))}
+          </div>
+        )}
       </div>
       <canvas
         ref={setCanvas}

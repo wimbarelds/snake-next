@@ -1,9 +1,11 @@
-import { Navigation } from '@/components/Navigation/Navigation';
 import './globals.css';
-import QueryProvider from '@/components/QueryClientProvider/QueryClientProvider';
-import { AlertOutlet, AlertProvider } from '@/components/AlertProvider/AlertProvider';
 
-import localFont from '@next/font/local';
+import localFont from 'next/font/local';
+
+import { AlertOutlet, AlertProvider } from '@/components/AlertProvider/AlertProvider';
+import { Navigation } from '@/components/Navigation/Navigation';
+import QueryProvider from '@/components/QueryClientProvider/QueryClientProvider';
+
 const arcadeFont = localFont({ src: './ARCADE_N.woff', variable: '--font-arcade' });
 
 export const metadata = {

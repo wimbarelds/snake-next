@@ -1,13 +1,15 @@
-import { SnakeGame, Level, Direction, DIRECTIONS } from './SnakeGame';
-import { InputHistory } from './SnakePlayer';
-import { SnakeAgent } from './SnakeAgent';
+import { DIRECTIONS } from './constants';
+import type { SnakeAgent } from './SnakeAgent';
+import type { Level, SnakeGame } from './SnakeGame';
+import type { InputHistory } from './SnakePlayer';
+import type { Direction } from './types';
 
 export class SnakeBot {
   public static readonly TICK_INTERVAL_BASE: number = 150;
   public static readonly TICK_INTERVAL_RANGE: number = 130;
 
-  private tickCount: number = 0;
-  private tickTimeout: number = 0;
+  private tickCount = 0;
+  private tickTimeout = 0;
   private direction: Direction = 'DOWN';
   private tickInput: Direction | null = null;
   private snakeAgent: SnakeAgent;
@@ -19,7 +21,7 @@ export class SnakeBot {
   constructor(snakeGame: SnakeGame, level: Level, worker: Worker, botIndex: number) {
     this.snakeAgent = snakeGame.snakeAgents[botIndex];
     this.worker = worker;
-    this.gameoverPromise = new Promise((resolve, reject) => {
+    this.gameoverPromise = new Promise((resolve) => {
       this.gameoverPromiseResolver = resolve;
     });
 
@@ -28,7 +30,7 @@ export class SnakeBot {
       data: {
         level,
         candyTiles: snakeGame.getCandyTiles(),
-        botIndex: botIndex,
+        botIndex,
       },
     });
 
@@ -51,6 +53,7 @@ export class SnakeBot {
         this.tickInput = command;
         this.direction = command;
       } else {
+        // eslint-disable-next-line no-console
         console.error('Invalid command received from bot', command);
       }
     });
@@ -64,7 +67,7 @@ export class SnakeBot {
   }
 
   private get tickInterval(): number {
-    const calc1 = 1 / Math.pow(this.snakeAgent.getScore() + 10, 0.1);
+    const calc1 = 1 / (this.snakeAgent.getScore() + 10) ** 0.1;
     const calc2 = 1 - (1 - calc1) * 2;
     const calc3 = (calc2 - 0.2) * 2.5;
     const calc4 =
@@ -84,11 +87,12 @@ export class SnakeBot {
 
     // Send tick to the game and increate our counter
     const gameTick = this.snakeAgent.tick();
-    this.tickCount++;
+    this.tickCount += 1;
 
     // Deal with what happened during the tick
     if (!gameTick) {
       // If death is what happened...
+      // eslint-disable-next-line no-console
       console.log('Your bot is game-over, score:', this.snakeAgent.getScore());
       this.gameoverPromiseResolver(this.inputHistory);
     } else {

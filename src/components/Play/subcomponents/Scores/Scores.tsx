@@ -8,7 +8,7 @@ export function Scores({ scores }: Props) {
   const valueText = scores.join(' | ');
 
   return (
-    <div className={styles.score} v-if="show">
+    <div className={styles.score}>
       <label>{labelText}</label>
       <span className={styles.scoreValue}>{valueText}</span>
     </div>

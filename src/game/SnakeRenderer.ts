@@ -1,8 +1,7 @@
-import { SnakeGame, Pos } from './SnakeGame';
-import { SnakeAgent } from './SnakeAgent';
-
-export const CANVAS_WIDTH = 1280;
-export const CANVAS_HEIGHT = 640;
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
+import type { SnakeAgent } from './SnakeAgent';
+import type { SnakeGame } from './SnakeGame';
+import type { Pos } from './types';
 
 export interface Theme {
   wallColor: string;
@@ -11,21 +10,40 @@ export interface Theme {
   candyColor: string;
 }
 
+function createCanvas() {
+  const canvas = document.createElement('canvas');
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = CANVAS_HEIGHT;
+  return canvas;
+}
+
+function drawStaticCanvas(tiles: Pos[], color: string) {
+  const canvas = createCanvas();
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  for (const tile of tiles) {
+    ctx.rect(tile.x, tile.y, 10, 10);
+  }
+  ctx.fill();
+  return canvas;
+}
+
 export class SnakeRenderer {
   private game: SnakeGame;
   private theme: Theme;
   private ctx: CanvasRenderingContext2D;
   private wallCanvas: HTMLCanvasElement;
   private floorCanvas!: HTMLCanvasElement;
-  private animationFrame: number = 0;
+  private animationFrame = 0;
 
   constructor(game: SnakeGame, theme: Theme, context: CanvasRenderingContext2D) {
     this.game = game;
     this.theme = theme;
     this.ctx = context;
 
-    this.wallCanvas = this.drawStaticCanvas(game.getWallTiles(), theme.wallColor);
-    this.floorCanvas = this.drawStaticCanvas(game.getFloorTiles(), theme.floorColor);
+    this.wallCanvas = drawStaticCanvas(game.getWallTiles(), theme.wallColor);
+    this.floorCanvas = drawStaticCanvas(game.getFloorTiles(), theme.floorColor);
 
     this.draw();
   }
@@ -50,25 +68,6 @@ export class SnakeRenderer {
   public destroy() {
     this.draw();
     cancelAnimationFrame(this.animationFrame);
-  }
-
-  private createCanvas(): HTMLCanvasElement {
-    const canvas = document.createElement('canvas');
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
-    return canvas;
-  }
-
-  private drawStaticCanvas(tiles: Pos[], color: string) {
-    const canvas = this.createCanvas();
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    ctx.beginPath();
-    ctx.fillStyle = color;
-    for (const tile of tiles) {
-      ctx.rect(tile.x, tile.y, 10, 10);
-    }
-    ctx.fill();
-    return canvas;
   }
 
   private drawTilesOnContext(tiles: Pos[], color: string) {

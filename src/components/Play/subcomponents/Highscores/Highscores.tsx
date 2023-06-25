@@ -1,10 +1,12 @@
-import { Highscore, InputHistory } from '@/game/SnakePlayer';
-import { GamePlayerResult } from '../../Play';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHighscores, submitHighscore } from '@/actions/actions';
 import { useCallback, useState } from 'react';
-import styles from './styles.module.css';
+
+import { getHighscores, submitHighscore } from '@/actions/actions';
 import { useShowAlert } from '@/components/AlertProvider/AlertProvider';
+import type { Highscore, InputHistory } from '@/game/SnakePlayer';
+
+import type { GamePlayerResult } from '../../Play';
+import styles from './styles.module.css';
 
 interface Props {
   levelName: string;
@@ -14,11 +16,7 @@ interface Props {
 }
 
 export function Highscores({ levelName, playerResult, onClose, onStartReplay }: Props) {
-  const {
-    isLoading: highscoresLoading,
-    error: highscoresError,
-    data: highscores,
-  } = useQuery<Highscore[]>({
+  const { data: highscores } = useQuery<Highscore[]>({
     queryKey: ['highscores', levelName],
     queryFn: () => getHighscores(levelName),
   });
@@ -47,26 +45,27 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
 
   const submitScore = useCallback(
     () => playerResult && mutateHighscores.mutate({ playerName, playerResult, levelName }),
-    [playerName, playerResult, levelName],
+    [playerName, playerResult, levelName, mutateHighscores],
   );
 
   return (
     <div className="overlay__container">
-      <div className="overlay__backdrop"></div>
+      <div className="overlay__backdrop" />
       <div className="overlay__content modal">
         <div className="modal__title">
           <h2>Highscores</h2>
-          <button className="modal__close" onClick={onClose}>
+          <button className="modal__close" onClick={onClose} type="button">
             &times;
           </button>
         </div>
         <div className="modal__body">
           {highscores ? (
             <ul className={styles.highscores}>
-              {highscores?.map((highscore, index) => (
+              {highscores?.map((highscore) => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
                 <li
                   className={styles.highscore}
-                  key={index}
+                  key={highscore.playId}
                   onClick={() =>
                     onStartReplay({
                       playId: highscore.playId,
@@ -75,7 +74,9 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
                   }
                 >
                   <button className={styles.highscoreReplay} title="Watch replay" type="button">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/Replay_1.png" alt="" className={styles.rewind} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/Replay_2.png" alt="" className={styles.arrow} />
                   </button>
                   <span className={styles.highscoreName}>{highscore.playerName}</span>
@@ -103,7 +104,9 @@ export function Highscores({ levelName, playerResult, onClose, onStartReplay }: 
                         onInput={(e) => setPlayername((e.target as HTMLInputElement).value)}
                         placeholder="Enter your name"
                       />
-                      <button onClick={submitScore}>Submit</button>
+                      <button type="button" onClick={submitScore}>
+                        Submit
+                      </button>
                     </div>
                   )}
                 </div>

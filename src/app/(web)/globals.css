@@ -128,17 +128,16 @@ canvas {
 }
 
 .alert-dialog::backdrop {
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, 0.5);
   inset: 0;
 }
 
 .alert-dialog {
   display: flex;
   flex-direction: column;
-  gap: .25em;
-  padding: .5em;
+  gap: 0.25em;
+  padding: 0.5em;
   min-width: 300px;
-  ;
 }
 
 .alert-dialog h2 {
@@ -153,7 +152,7 @@ canvas {
 
 .alert-dialog .alert-buttons button {
   border: solid #666 5px;
-  background-color: #FFF;
+  background-color: #fff;
   font-family: var(--font-arcade);
   padding: 5px 20px;
   min-width: 150px;

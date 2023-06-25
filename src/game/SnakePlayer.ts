@@ -1,5 +1,7 @@
-import { DIRECTIONS, Pos, Direction, SnakeAgentController } from './SnakeGame';
-import { SnakeAgent } from './SnakeAgent';
+import { DIRECTIONS } from './constants';
+import type { SnakeAgent } from './SnakeAgent';
+import type { SnakeAgentController } from './SnakeGame';
+import type { Direction, Pos } from './types';
 
 export type KeyMap = {
   [d in Direction]: number;
@@ -35,8 +37,8 @@ export class SnakePlayer implements SnakeAgentController {
   private readonly KEYMAP: KeyMap;
   private readonly REVERSE_KEYMAP: ReverseKeyMap;
 
-  private tickCount: number = 0;
-  private tickTimeout: number = 0;
+  private tickCount = 0;
+  private tickTimeout = 0;
   private tickInput: Pos | null = null;
   private queuedInput: Pos | null = null;
   private agent: SnakeAgent;
@@ -86,7 +88,7 @@ export class SnakePlayer implements SnakeAgentController {
       // Add input history if needed
       if (this.tickInput) this.inputHistory[getDirectionKey(this.tickInput)].push(this.tickCount);
       // Increment tickCounter
-      this.tickCount++;
+      this.tickCount += 1;
       // Schedule next tick
       this.scheduleNextTick();
 
@@ -108,7 +110,7 @@ export class SnakePlayer implements SnakeAgentController {
   }
 
   private get tickInterval(): number {
-    const calc1 = 1 / Math.pow(this.agent.getScore() + 10, 0.1);
+    const calc1 = 1 / (this.agent.getScore() + 10) ** 0.1;
     const calc2 = 1 - (1 - calc1) * 2;
     const calc3 = (calc2 - 0.2) * 2.5;
     const calc4 =

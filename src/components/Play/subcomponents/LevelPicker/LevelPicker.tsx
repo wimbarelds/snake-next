@@ -1,12 +1,9 @@
-import { usePathname } from 'next/navigation';
-import styles from './styles.module.css';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-interface Props {
-  onSetLevelName: (name: string) => void;
-}
+import styles from './styles.module.css';
 
-export function LevelPicker({levels}: {levels: string[]}) {
+export function LevelPicker({ levels }: { levels: string[] }) {
   const pathname = usePathname();
   // TODO: Dont want this to be client component
   return (
@@ -18,17 +15,17 @@ export function LevelPicker({levels}: {levels: string[]}) {
             const url = `/play/${level}`;
             if (url === pathname) {
               return (
-                <li key={level}><span className={styles.currentLevel}>{level}</span></li>
-              )
-            } else {
-              return (
                 <li key={level}>
-                  <Link href={`/play/${level}`}>
-                    {level}
-                  </Link>
+                  <span className={styles.currentLevel}>{level}</span>
                 </li>
               );
             }
+
+            return (
+              <li key={level}>
+                <Link href={`/play/${level}`}>{level}</Link>
+              </li>
+            );
           })}
         </ul>
       </div>
