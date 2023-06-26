@@ -14,6 +14,9 @@ export function Navigation() {
       <Link className={style.navlink} href="/about">
         About
       </Link>
+      <Link className={style.navlink} href="/test">
+        Test
+      </Link>
     </nav>
   );
 }

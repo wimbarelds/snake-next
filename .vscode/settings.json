@@ -5,7 +5,14 @@
   "prettier.prettierPath": "./node_modules/prettier",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": false,
-  "editor.detectIndentation": true,
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
   // Runs ESLint and Prettier.
-  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll"]
+  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll"],
+  "eslint.codeActionsOnSave.rules": null,
+  "eslint.enable": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
